@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="keypic" title="NO CAPTCHA Anti-Spam with Keypic" version_string="1.0" version_id="1" url="" install_callback_class="Keypic_Install_Base" install_callback_method="install" uninstall_callback_class="Keypic_Install_Base" uninstall_callback_method="uninstall">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="keypic_user_details"><![CDATA[<xen:if hascontent="true">
+<style type="text/css">
+	.spampercent {font-weight: bold;}
+</style>
+
+<div>
+<h3 class="textHeading">{xen:phrase keypic_spam_status}</h3>
+	<dl class="ctrlUnit">
+		<xen:contentcheck>
+		<xen:if is="{$keypicDetails}">
+			<dt><label>{xen:phrase x_spam, 'spam={$keypicDetails.spam}'}</label>
+				<dfn>{xen:helper datetimehtml, {$keypicDetails.ts}}</dfn>
+				<xen:if is="{$visitor.is_admin}">
+					<dfn>{xen:phrase token}: {$keypicDetails.token}</dfn>
+				</xen:if>
+			</dt>
+			<dd><a href="{xen:adminlink banning/users/add, $user, 'keypic=1'}" class="OverlayTrigger">{xen:phrase report_spam_ban_user}</a></dd>
+		</xen:if>
+		</xen:contentcheck>
+	</dl>
+</div>
+</xen:if>]]></template>
+    <template title="option_template_keypicFormDetails"><![CDATA[<xen:checkboxunit label="{$preparedOption.title}" hint="{$preparedOption.hint}">
+	<xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
+	
+	<xen:option label="{xen:phrase registration}:" name="{$fieldPrefix}[{$preparedOption.option_id}][register]" selected="{$preparedOption.option_value.register}">
+		<xen:select name="{$fieldPrefix}[{$preparedOption.option_id}][registerDimension]" value="{$preparedOption.option_value.registerDimension}">
+			<xen:foreach loop="$keypicDimensions" key="$dimension" value="$label">
+				<xen:option value="{$dimension}">{$label}</xen:option>
+			</xen:foreach>
+		</xen:select>
+	</xen:option>
+	
+	<xen:option label="{xen:phrase login}:" name="{$fieldPrefix}[{$preparedOption.option_id}][login]" selected="{$preparedOption.option_value.login}">
+		<xen:select name="{$fieldPrefix}[{$preparedOption.option_id}][loginDimension]" value="{$preparedOption.option_value.loginDimension}">
+			<xen:foreach loop="$keypicDimensions" key="$dimension" value="$label">
+				<xen:option value="{$dimension}">{$label}</xen:option>
+			</xen:foreach>
+		</xen:select>
+	</xen:option>
+	
+	<xen:option label="{xen:phrase contact}:" name="{$fieldPrefix}[{$preparedOption.option_id}][contact]" selected="{$preparedOption.option_value.contact}">
+		<xen:select name="{$fieldPrefix}[{$preparedOption.option_id}][contactDimension]" value="{$preparedOption.option_value.contactDimension}">
+			<xen:foreach loop="$keypicDimensions" key="$dimension" value="$label">
+				<xen:option value="{$dimension}">{$label}</xen:option>
+			</xen:foreach>
+		</xen:select>
+	</xen:option>
+	
+	<xen:option label="{xen:phrase post}:" name="{$fieldPrefix}[{$preparedOption.option_id}][post]" selected="{$preparedOption.option_value.post}">
+		<xen:select name="{$fieldPrefix}[{$preparedOption.option_id}][postDimension]" value="{$preparedOption.option_value.postDimension}">
+			<xen:foreach loop="$keypicDimensions" key="$dimension" value="$label">
+				<xen:option value="{$dimension}">{$label}</xen:option>
+			</xen:foreach>
+		</xen:select>
+	</xen:option>
+	
+	<xen:html>
+		<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+		{xen:raw $editLink}
+	</xen:html>
+</xen:checkboxunit>]]></template>
+  </admin_templates>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="front_controller_post_view" execute_order="10" callback_class="Keypic_Listen" callback_method="frontControllerPostView" active="1" hint="" description=""/>
+    <listener event_id="init_dependencies" execute_order="10" callback_class="Keypic_Listen" callback_method="init" active="1" hint="" description=""/>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="Keypic_Listen" callback_method="extendController" active="1" hint="" description=""/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="Keypic_Listen" callback_method="extendDataWriter" active="1" hint="" description=""/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="Keypic_Listen" callback_method="extendModel" active="1" hint="XenForo_Model_Post" description=""/>
+    <listener event_id="template_create" execute_order="10" callback_class="Keypic_Listen" callback_method="keypicOptionsTemplateCreate" active="1" hint="option_template_keypicFormDetails" description="Keypic Form Details Template"/>
+    <listener event_id="template_create" execute_order="10" callback_class="Keypic_Listen" callback_method="postTemplateCreate" active="1" hint="" description="Preload Keypic Post Control Template"/>
+    <listener event_id="template_hook" execute_order="10" callback_class="Keypic_Listen" callback_method="templateHook" active="1" hint="" description=""/>
+    <listener event_id="template_post_render" execute_order="10" callback_class="Keypic_Listen" callback_method="contactTemplatePostRender" active="1" hint="contact" description="Contact Template"/>
+    <listener event_id="template_post_render" execute_order="10" callback_class="Keypic_Listen" callback_method="registerTemplatePostRender" active="1" hint="register_form" description="Register Form Template"/>
+    <listener event_id="template_post_render" execute_order="10" callback_class="Keypic_Listen" callback_method="templateUserExtraPostRender" active="1" hint="user_extra" description="Admin User Extra"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="keypic" display_order="1000" debug_only="0"/>
+    <option option_id="keypicFormDetails" edit_format="template" data_type="array" can_backup="1">
+      <default_value>a:8:{s:8:"register";s:1:"1";s:17:"registerDimension";s:6:"728x90";s:5:"login";b:0;s:14:"loginDimension";b:0;s:7:"contact";s:1:"1";s:16:"contactDimension";s:6:"468x60";s:4:"post";s:1:"1";s:13:"postDimension";s:6:"728x90";}</default_value>
+      <edit_format_params>option_template_keypicFormDetails</edit_format_params>
+      <sub_options>register
+registerDimension
+login
+loginDimension
+contact
+contactDimension
+post
+postDimension</sub_options>
+      <relation group_id="keypic" display_order="100"/>
+    </option>
+    <option option_id="keypicFormId" edit_format="textbox" data_type="string" can_backup="1" validation_class="Keypic_Option" validation_method="verifyOption">
+      <default_value></default_value>
+      <edit_format_params></edit_format_params>
+      <sub_options></sub_options>
+      <relation group_id="keypic" display_order="1"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="contact" version_id="1" version_string="1.0"><![CDATA[Contact]]></phrase>
+    <phrase title="invalid_keypic_post_token" version_id="1" version_string="1.0"><![CDATA[Invalid Keypic Post Token]]></phrase>
+    <phrase title="keypic_contact_spam_message" version_id="1" version_string="1.0"><![CDATA[Keypic judged the sending activity as spamming. <br /> Failed to send your message. Please try later or contact the administrator by another method.]]></phrase>
+    <phrase title="keypic_login_spam_message" version_id="1" version_string="1.0"><![CDATA[Your login is blocked. Contact the administrator to resolve the issue.]]></phrase>
+    <phrase title="keypic_post_spam_message" version_id="1" version_string="1.0"><![CDATA[Keypic judged the sending activity as spamming. <br /> Failed to send your message. Please try later or contact the administrator by another method.]]></phrase>
+    <phrase title="keypic_register_spam_message" version_id="1" version_string="1.0"><![CDATA[Sorry, your registration is blocked. Contact administrator to resolve the issue.]]></phrase>
+    <phrase title="keypic_spam_status" version_id="1" version_string="1.0"><![CDATA[Keypic Spam Status]]></phrase>
+    <phrase title="keypic_spam_x" version_id="1" version_string="1.0"><![CDATA[Spam <b>{value}%</b>]]></phrase>
+    <phrase title="login" version_id="1" version_string="1.0"><![CDATA[Login]]></phrase>
+    <phrase title="option_group_keypic" version_id="1" version_string="1.0"><![CDATA[Keypic]]></phrase>
+    <phrase title="option_group_keypic_description" version_id="1" version_string="1.0"><![CDATA[Keypic General Settings.]]></phrase>
+    <phrase title="option_keypicFormDetails" version_id="1" version_string="1.0"><![CDATA[Keypic Form Details]]></phrase>
+    <phrase title="option_keypicFormDetails_explain" version_id="1" version_string="1.0"><![CDATA[]]></phrase>
+    <phrase title="option_keypicFormId" version_id="1" version_string="1.0"><![CDATA[Keypic FormID]]></phrase>
+    <phrase title="option_keypicFormId_explain" version_id="1" version_string="1.0"><![CDATA[If you don't have an API FormID yet, you can get one at <a href="http://www.keypic.com" target="_blank">keypic.com</a>.]]></phrase>
+    <phrase title="registration" version_id="1" version_string="1.0"><![CDATA[Registration]]></phrase>
+    <phrase title="report_spam_and_delete" version_id="1" version_string="1.0"><![CDATA[Report SPAM And Delete]]></phrase>
+    <phrase title="report_spam_ban_user" version_id="1" version_string="1.0"><![CDATA[Report Spam and Ban User]]></phrase>
+    <phrase title="token" version_id="1" version_string="1.0"><![CDATA[Token]]></phrase>
+    <phrase title="x_spam" version_id="1" version_string="1.0"><![CDATA[<span class="spampercent">{spam}%</span> SPAM]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates>
+    <template title="keypic_post_control" version_id="1" version_string="1.0"><![CDATA[<xen:if is="{$post.canCleanSpam}"><a href="{xen:link posts/delete, $post, 'keypic=1'}" title="{xen:phrase report_spam_and_delete}" class="item control delete OverlayTrigger" data-tokenid="{$post.keypic_details.token}"><span></span>{xen:phrase keypic_spam_x, 'value={$post.keypic_details.spam}'}</a></xen:if>]]></template>
+  </templates>
+  <public_template_modifications/>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>
